@@ -1,5 +1,6 @@
 'use strict';
-// TODO: Install and require the node postgres package into your server.js, and ensure that it's now a new dependency in your package.json
+// DONE: Install and require the node postgres package into your server.js, and ensure that it's now a new dependency in your package.json
+const pg = require('pg');
 
 const express = require('express');
 // REVIEW: Require in body-parser for post requests in our server
@@ -7,7 +8,7 @@ const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
 const app = express();
 // REVIEW: Create a connection string for the url that will connect to our local postgres database
-const conString = process.env.DATABASE_URL || 'postgres://localhost:5432';
+const conString = process.env.DATABASE_URL || 'postgres://postgres:bobistheshit@localhost:5432/bwork';
 
 // REVIEW: Install the middleware plugins so that our app is aware and can use the body-parser module
 app.use(bodyParser.json());
@@ -41,14 +42,15 @@ app.get('/articles/all', function(request, response) {
 });
 
 app.post('/articles/insert', function(request, response) {
-  console.log(request.body.article);
+  console.log(request.body);
   let client = new pg.Client(conString)
 
   client.connect(function(err) {
     if (err) console.error(err);
 
     client.query(
-      ``, // TODO: Write the SQL query to insert a new record
+      `INSERT INTO articles (title, author, "authorUrl", category, "publishedOn", body)
+      VALUES (request.title, request.author, request.authorUrl, request.category, request.publishedOn, request.body)`, // TODO: Write the SQL query to insert a new record
       [], // TODO: Get each value from the request's body
       function(err) {
         if (err) console.error(err);
@@ -66,7 +68,8 @@ app.put('/articles/update', function(request, response) {
     if (err) console.error(err);
 
     client.query(
-      ``, // TODO: Write the SQL query to update an existing record
+      `UPDATE articles
+      SET author = request.data.author `, // TODO: Write the SQL query to update an existing record
       [], // TODO: Get each value from the request's body
       function(err) {
         if (err) console.error(err);
@@ -84,7 +87,8 @@ app.delete('/articles/delete', function(request, response) {
     if (err) console.error(err);
 
     client.query(
-      ``, // TODO: Write the SQL query to delete a record
+      `DELETE FROM articles
+      WHERE id = request.data.val();`, // DONE: Write the SQL query to delete a record
       function(err) {
         if (err) console.error(err);
         client.end();
@@ -101,7 +105,7 @@ app.delete('/articles/truncate', function(request, response) {
     if (err) console.error(err);
 
     client.query(
-      '', // TODO: Write the SQl query to truncate the table
+      'DELETE FROM articles', // DONE: Write the SQl query to truncate the table
       function(err) {
         if (err) console.error(err);
         client.end();
